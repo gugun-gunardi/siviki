@@ -1,0 +1,56 @@
+body {
+    background-color: #f3f6fa;
+}
+
+.queue-container {
+    background-color: #1a1a40;
+    color: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 50px auto;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.queue-logo img {
+    width: 100px;
+}
+
+.queue-position {
+    font-size: 1.5rem;
+    margin: 20px 0;
+}
+
+.queue-number {
+    font-size: 3rem;
+    color: red;
+    font-weight: bold;
+}
+
+.queue-info {
+    margin-top: 10px;
+}
+
+.queue-warning {
+    background-color: #fff4e5;
+    color: #b3541e;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.btn-cancel {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.btn-cancel:hover {
+    background-color: darkred;
+}
