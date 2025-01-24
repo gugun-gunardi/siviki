@@ -13,9 +13,10 @@ import { setServiceStatus } from './redux/serviceSlice';
 
 const App = () => {
   const dispatch = useDispatch();
-  const { agentBusy, isServiceActive } = useSelector((state) => state.service);
+  const { agentBusy, isServiceActive, ticketId } = useSelector(
+    (state) => state.service
+  );
   const { showModal } = useSelector((state) => state.modal);
-
   useEffect(() => {
     // Simulasi pengecekan status layanan dari API
     const fetchServiceStatus = async () => {
@@ -23,7 +24,6 @@ const App = () => {
         // const response = await axios.get('/api/service-status'); // Ganti dengan endpoint API yang sesuai
         const response = true;
         dispatch(setServiceStatus(response));
-        console.log('xxxx', isServiceActive);
       } catch (error) {
         console.error('Error fetching service status:', error);
       }

@@ -1,52 +1,68 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { setServiceStatus } from '../../redux/serviceSlice';
+import { resetService } from '../../redux/serviceSlice';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import logo from '../../assets/images/logo_djki_kemenkumham.png';
 import './queue.css';
+import VideoCallListener from '../VideocallListener';
 const Queue = () => {
   const dispatch = useDispatch();
-  const { agentBusy } = useSelector((state) => state.service);
-  const navigate = useNavigate(); // Inisialisasi navigate
+  const navigate = useNavigate();
+  const { queuePosition, ticketId, userId } = useSelector(
+    (state) => state.service
+  );
 
   // Fungsi untuk membatalkan antrian dan kembali ke form registrasi
-  const handleCancelQueue = () => {
-    dispatch(setServiceStatus({ agentBusy: false, serviceActive: true }));
-    navigate('/register'); // Mengarahkan kembali ke form registrasi
-  };
+  const handleCancelQueue = async () => {
+    if (!ticketId) {
+      alert('Tidak ada sesi yang sedang berlangsung.');
+      return;
+    }
 
-  // useEffect(() => {
-  //   dispatch(fetchServiceStatus()); // Panggil untuk mengambil status layanan dan agent
-  // }, [dispatch]);
+    try {
+      const response = await axios.post(
+        'http://10.14.151.110:3000/api/cancel-session',
+        { ticket_id: ticketId, user_id: userId },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      alert('Sesi berhasil dibatalkan.');
+      const result = response.data;
+      console.log(result);
+      // Reset state Redux
+      dispatch(resetService());
+
+      // Arahkan kembali ke halaman registrasi
+      navigate('/register');
+    } catch (error) {
+      console.error('Gagal membatalkan sesi:', error);
+      alert('Gagal membatalkan sesi. Silakan coba lagi.');
+    }
+  };
 
   return (
     <div className='queue-container'>
+      <VideoCallListener ticketId={ticketId} />
       <div className='queue-logo'>
         <img src={logo} alt='SIVIKI Logo' width='100' />
       </div>
       <div className='queue-position'>
         <p>Posisi Antrian Saat Ini</p>
-        <div className='queue-number'>0</div>
-        <p>Posisi Anda dalam antrian: 1</p>
+        <div className='queue-number'>{queuePosition}</div>
       </div>
-      {agentBusy && <p>Agent sedang sibuk, silakan tunggu...</p>}
+      <p>Mohon tunggu, agent kami akan segera melayani Anda...</p>
       <button className='btn-cancel' onClick={handleCancelQueue}>
         Batalkan Sesi
       </button>
-      <div className='queue-info'>
-        <p>
-          Mohon tunggu, agent kami akan segera melayani Anda. Jangan menutup
-          tampilan browser Anda.
-        </p>
-      </div>
       <div className='queue-warning'>
         <p>
           <strong>Pelanggan Yth,</strong> seluruh interaksi ini akan kami rekam.{' '}
           <strong>
-            Dimohon untuk tidak mengambil atau/menyebarluaskan
-            audio/gambar/video dari interaksi percakapan.
+            Dilarang mengambil atau menyebarluaskan audio/gambar/video dari
+            interaksi ini.
           </strong>{' '}
-          Kegiatan tersebut termasuk dalam penyalahgunaan dan akan ditindak
-          sesuai dengan peraturan perundang-undangan yang berlaku.
+          Penyalahgunaan akan ditindak sesuai dengan hukum yang berlaku.
         </p>
       </div>
     </div>

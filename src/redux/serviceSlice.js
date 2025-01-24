@@ -5,11 +5,7 @@ import axios from 'axios';
 export const fetchServiceStatus = createAsyncThunk(
   'service/fetchServiceStatus',
   async () => {
-    // const serviceResponse = await axios.get('/api/service/status');
-    // const agentResponse = await axios.get('/api/agent/status');
     return {
-      //   serviceActive: serviceResponse.data.isActive,
-      //   agentBusy: agentResponse.data.isBusy,
       serviceActive: true,
       agentBusy: true,
     };
@@ -21,6 +17,9 @@ const serviceSlice = createSlice({
   initialState: {
     isServiceActive: true, // Default status layanan
     agentBusy: false, // Default status agent
+    queuePosition: 0,
+    ticketId: null,
+    userId: null,
     loading: false,
     error: null,
   },
@@ -29,6 +28,17 @@ const serviceSlice = createSlice({
       state.isServiceActive =
         action.payload.isServiceActive ?? state.isServiceActive;
       state.agentBusy = action.payload.agentBusy ?? state.agentBusy;
+    },
+    setQueueInfo: (state, action) => {
+      state.queuePosition = action.payload.queuePosition;
+      state.ticketId = action.payload.ticketId;
+      state.userId = action.payload.userId;
+    },
+    resetService: (state) => {
+      state.agentBusy = false;
+      state.queuePosition = 0;
+      state.ticketId = null;
+      state.userId = null;
     },
   },
   extraReducers: (builder) => {
@@ -48,5 +58,6 @@ const serviceSlice = createSlice({
   },
 });
 
-export const { setServiceStatus } = serviceSlice.actions;
+export const { setServiceStatus, setQueueInfo, resetService } =
+  serviceSlice.actions;
 export default serviceSlice.reducer;

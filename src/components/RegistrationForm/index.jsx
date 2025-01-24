@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleModal } from '../../redux/modalSlice';
-import { setServiceStatus } from '../../redux/serviceSlice';
+import { setServiceStatus, setQueueInfo } from '../../redux/serviceSlice';
 import ModalInfo from '../ModalInfo';
 import Queue from '../Queue'; // Pastikan Queue sudah dibuat
 import { useNavigate } from 'react-router-dom';
@@ -45,14 +45,37 @@ const RegistrationForm = () => {
     }
     // Pengecekan API untuk memeriksa apakah ada agent yang tersedia
     try {
-      //   const response = await axios.get('/api/check-agent'); // Ubah URL sesuai API Anda
-      const response = false;
-      if (response) {
-        navigate('https://www.xxxx.com'); // Redirect jika agent tersedia
-      } else {
+      const response = await axios.post(
+        'http://10.14.151.110:3000/api/check-service',
+        {
+          user_id: formData.nama,
+          nama: formData.nama,
+          email: formData.email,
+          phone: formData.phone,
+          kategori: formData.kategori,
+          pemohon: formData.pemohon,
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      const result = response.data;
+      // console.log(result);
+
+      if (result.result === 'error' && result.message === 'Off timework.') {
+        dispatch(toggleModal(true)); // Tampilkan modal jika di luar waktu layanan
+      } else if (result.result === 'error') {
+        alert('Gagal mengirim formulir: ' + result.message);
+      } else if (result.result === 'success') {
+        dispatch(setServiceStatus({ agentBusy: true, serviceActive: true }));
         dispatch(
-          setServiceStatus({ agentBusy: true, serviceActive: isServiceActive })
-        ); // Tampilkan antrian jika tidak ada agent
+          setQueueInfo({
+            queuePosition: result.wait,
+            ticketId: result.ticket_id,
+            userId: formData.nama,
+          })
+        );
       }
     } catch (error) {
       console.error('Terjadi kesalahan saat memeriksa agent:', error);
@@ -245,7 +268,7 @@ const RegistrationForm = () => {
                   <iframe
                     width='100%'
                     height='100%'
-                    src='https://www.youtube.com/embed/zO6lY1M_NIY?autoplay=1&amp;mute=1'
+                    // src='https://www.youtube.com/embed/zO6lY1M_NIY?autoplay=1&amp;mute=1'
                     title='Tutorial Video Conference'
                     frameBorder='0'
                     allowFullScreen
